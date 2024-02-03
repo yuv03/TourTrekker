@@ -2,9 +2,31 @@ const fs = require('fs')
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`))
 
 
+exports.checkID = (req, res, next, val) => {
+    const id = req.params.id*1; // Here converting the string to number
+    console.log(`Tour id is ${val}`);
+    if(id > tours.length){
+        return res.status(404).json({
+            status: 'fail',
+            message : 'invalid id'
+        })
+    }
+    next();
+}
+
+exports.checkBody = (req, res, next)=>{
+    const {name, price} = req.body;
+    if(!name || !price){
+        return res.status(400).json({
+                status : 'fail',
+                message : 'Missing name or price'
+            })
+    }
+    next();
+}
+
 exports.getAllTours = (req, res)=>{
     console.log(req.requestTime)
-
     res.status(200).json({
         status: 'success',
         requestedAt: req.requestTime,
@@ -16,18 +38,7 @@ exports.getAllTours = (req, res)=>{
 }
 
 exports.getTour = (req, res)=>{
-
-    const id = req.params.id*1; // Here converting the string to number
-    // if(id > tours.length){
-    const tour = tours.find(el => el.id === id)
-    if(!tour){
-        return res.status(404).json({
-            status: 'fail',
-            message : 'invalid id'
-        })
-    }
-
-
+    const tour = tours.find(el => el.id === req.params.id*1);
     res.status(200).json({
         status: 'success',
         data : {
@@ -55,13 +66,6 @@ exports.createTour = (req, res)=>{
 }
 
 exports.updateTour = (req,res)=>{
-    const id = req.params.id*1; // Here converting the string to number
-    if(id > tours.length){
-        return res.status(404).json({
-            status: 'fail',
-            message : 'invalid id'
-        })
-    }
     res.status(200).json({
         status: 'success',
         data: {
@@ -71,13 +75,6 @@ exports.updateTour = (req,res)=>{
 }
 
 exports.deleteTour = (req, res)=>{
-    const id = req.params.id*1; // Here converting the string to number
-    if(id > tours.length){
-        return res.status(404).json({
-            status: 'fail',
-            message : 'invalid id'
-        })
-    }
     res.status(204).json({
         status: 'success',
         data: null
